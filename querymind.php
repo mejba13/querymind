@@ -1,13 +1,13 @@
 <?php
 /**
  * Plugin Name:       QueryMind
- * Plugin URI:        https://querymind.io
+ * Plugin URI:        https://github.com/mejba13/querymind
  * Description:       Ask questions about your WordPress data in plain English. AI-powered database explorer with visual reports.
  * Version:           1.0.0
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Author:            Engr Mejba Ahmed
- * Author URI:        https://www.mejba.me/
+ * Author URI:        https://developer.developer-developer.com
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       querymind
@@ -26,7 +26,6 @@ define( 'QUERYMIND_VERSION', '1.0.0' );
 define( 'QUERYMIND_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'QUERYMIND_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'QUERYMIND_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
-define( 'QUERYMIND_API_URL', 'https://api.querymind.io/v1' );
 define( 'QUERYMIND_MIN_PHP', '8.0' );
 define( 'QUERYMIND_MIN_WP', '6.0' );
 
