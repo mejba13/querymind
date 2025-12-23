@@ -2,6 +2,9 @@
 
 Ask questions about your WordPress data in plain English. Get instant answers powered by AI.
 
+<img width="1910" height="1439" alt="query-mind" src="https://github.com/user-attachments/assets/8e3ee251-3d79-4ab1-aabf-d2a8d8c8b4a5" />
+
+
 ![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.0%2B-purple.svg)
 ![License](https://img.shields.io/badge/License-GPLv2-green.svg)
