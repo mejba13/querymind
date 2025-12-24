@@ -101,14 +101,16 @@ class AIRouter {
      * @throws ProviderException If provider fails.
      */
     private function call_provider( string $provider_name, string $prompt, array $options = [] ): string {
+        $safe_provider_name = sanitize_text_field( $provider_name );
+
         if ( ! isset( $this->providers[ $provider_name ] ) ) {
             throw new ProviderException(
                 sprintf(
                     /* translators: %s: provider name */
-                    __( 'Unknown AI provider: %s', 'querymind' ),
-                    $provider_name
+                    esc_html__( 'Unknown AI provider: %s', 'querymind' ),
+                    esc_html( $safe_provider_name )
                 ),
-                $provider_name,
+                $safe_provider_name,
                 'unknown_provider'
             );
         }
@@ -119,10 +121,10 @@ class AIRouter {
             throw new ProviderException(
                 sprintf(
                     /* translators: %s: provider name */
-                    __( '%s is not configured. Please add your API key in settings.', 'querymind' ),
-                    ucfirst( $provider_name )
+                    esc_html__( '%s is not configured. Please add your API key in settings.', 'querymind' ),
+                    esc_html( ucfirst( $safe_provider_name ) )
                 ),
-                $provider_name,
+                $safe_provider_name,
                 'not_configured'
             );
         }

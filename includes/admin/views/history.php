@@ -52,9 +52,9 @@ $total_pages = ceil( $total / $per_page );
             <p class="querymind-page-subtitle">
                 <?php
                 printf(
-                    /* translators: %d: total number of queries */
-                    esc_html( _n( '%d query executed', '%d queries executed', $total, 'querymind' ) ),
-                    number_format_i18n( $total )
+                    /* translators: %s: total number of queries */
+                    esc_html( _n( '%s query executed', '%s queries executed', $total, 'querymind' ) ),
+                    esc_html( number_format_i18n( $total ) )
                 );
                 ?>
             </p>
@@ -184,16 +184,17 @@ $total_pages = ceil( $total / $per_page );
                 <div class="tablenav bottom">
                     <div class="tablenav-pages">
                         <?php
-                        echo paginate_links(
+                        $pagination = paginate_links(
                             [
                                 'base'      => add_query_arg( 'paged', '%#%' ),
                                 'format'    => '',
-                                'prev_text' => '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>',
-                                'next_text' => '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>',
+                                'prev_text' => '&laquo;',
+                                'next_text' => '&raquo;',
                                 'total'     => $total_pages,
                                 'current'   => $current_page,
                             ]
                         );
+                        echo wp_kses_post( $pagination );
                         ?>
                     </div>
                 </div>

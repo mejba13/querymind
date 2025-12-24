@@ -115,7 +115,7 @@ class OpenAIProvider implements ProviderInterface {
 
         if ( is_wp_error( $response ) ) {
             throw new ProviderException(
-                $response->get_error_message(),
+                sanitize_text_field( $response->get_error_message() ),
                 'openai',
                 'request_failed'
             );
@@ -125,14 +125,18 @@ class OpenAIProvider implements ProviderInterface {
         $body = json_decode( wp_remote_retrieve_body( $response ), true );
 
         if ( $status_code !== 200 ) {
-            $error_message = $body['error']['message'] ?? __( 'Unknown OpenAI error', 'querymind' );
-            $error_code = $body['error']['code'] ?? (string) $status_code;
+            $error_message = isset( $body['error']['message'] )
+                ? sanitize_text_field( $body['error']['message'] )
+                : esc_html__( 'Unknown OpenAI error', 'querymind' );
+            $error_code = isset( $body['error']['code'] )
+                ? sanitize_text_field( $body['error']['code'] )
+                : (string) intval( $status_code );
 
             throw new ProviderException(
                 $error_message,
                 'openai',
                 $error_code,
-                $status_code
+                intval( $status_code )
             );
         }
 

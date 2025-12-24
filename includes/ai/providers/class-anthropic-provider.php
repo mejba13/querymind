@@ -115,7 +115,7 @@ class AnthropicProvider implements ProviderInterface {
 
         if ( is_wp_error( $response ) ) {
             throw new ProviderException(
-                $response->get_error_message(),
+                sanitize_text_field( $response->get_error_message() ),
                 'anthropic',
                 'request_failed'
             );
@@ -125,14 +125,18 @@ class AnthropicProvider implements ProviderInterface {
         $body = json_decode( wp_remote_retrieve_body( $response ), true );
 
         if ( $status_code !== 200 ) {
-            $error_message = $body['error']['message'] ?? __( 'Unknown Anthropic error', 'querymind' );
-            $error_type = $body['error']['type'] ?? (string) $status_code;
+            $error_message = isset( $body['error']['message'] )
+                ? sanitize_text_field( $body['error']['message'] )
+                : esc_html__( 'Unknown Anthropic error', 'querymind' );
+            $error_type = isset( $body['error']['type'] )
+                ? sanitize_text_field( $body['error']['type'] )
+                : (string) intval( $status_code );
 
             throw new ProviderException(
                 $error_message,
                 'anthropic',
                 $error_type,
-                $status_code
+                intval( $status_code )
             );
         }
 
