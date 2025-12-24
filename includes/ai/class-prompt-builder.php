@@ -134,27 +134,24 @@ class PromptBuilder {
             ? "Orders are in {$prefix}wc_orders table (HPOS enabled)"
             : "Orders are in {$prefix}posts where post_type='shop_order'";
 
-        return <<<CONTEXT
-WOOCOMMERCE CONTEXT:
-{$hpos_note}
+        $context = "WOOCOMMERCE CONTEXT:\n";
+        $context .= $hpos_note . "\n\n";
+        $context .= "ORDER STATUSES:\n";
+        $context .= "- wc-pending: Pending payment\n";
+        $context .= "- wc-processing: Processing (paid, not shipped)\n";
+        $context .= "- wc-on-hold: On hold\n";
+        $context .= "- wc-completed: Completed\n";
+        $context .= "- wc-cancelled: Cancelled\n";
+        $context .= "- wc-refunded: Refunded\n";
+        $context .= "- wc-failed: Failed payment\n\n";
+        $context .= "For revenue calculations, use status IN ('wc-completed', 'wc-processing')\n\n";
+        $context .= "KEY RELATIONSHIPS:\n";
+        $context .= "- {$prefix}wc_orders: Main order data (id, status, total_amount, customer_id, date_created_gmt)\n";
+        $context .= "- {$prefix}woocommerce_order_items: Line items (order_item_id, order_id, order_item_name, order_item_type)\n";
+        $context .= "- {$prefix}woocommerce_order_itemmeta: Item details (order_item_id, meta_key, meta_value)\n";
+        $context .= "- {$prefix}wc_customer_lookup: Customer data (customer_id, user_id, email, first_name, last_name)";
 
-ORDER STATUSES:
-- wc-pending: Pending payment
-- wc-processing: Processing (paid, not shipped)
-- wc-on-hold: On hold
-- wc-completed: Completed
-- wc-cancelled: Cancelled
-- wc-refunded: Refunded
-- wc-failed: Failed payment
-
-For revenue calculations, use status IN ('wc-completed', 'wc-processing')
-
-KEY RELATIONSHIPS:
-- {$prefix}wc_orders: Main order data (id, status, total_amount, customer_id, date_created_gmt)
-- {$prefix}woocommerce_order_items: Line items (order_item_id, order_id, order_item_name, order_item_type)
-- {$prefix}woocommerce_order_itemmeta: Item details (order_item_id, meta_key, meta_value)
-- {$prefix}wc_customer_lookup: Customer data (customer_id, user_id, email, first_name, last_name)
-CONTEXT;
+        return $context;
     }
 
     /**
@@ -166,23 +163,21 @@ CONTEXT;
         global $wpdb;
         $prefix = $wpdb->prefix;
 
-        return <<<CONTEXT
-LEARNDASH CONTEXT:
-Course content uses WordPress posts with custom post types:
-- sfwd-courses: Courses
-- sfwd-lessons: Lessons
-- sfwd-topic: Topics
-- sfwd-quiz: Quizzes
+        $context = "LEARNDASH CONTEXT:\n";
+        $context .= "Course content uses WordPress posts with custom post types:\n";
+        $context .= "- sfwd-courses: Courses\n";
+        $context .= "- sfwd-lessons: Lessons\n";
+        $context .= "- sfwd-topic: Topics\n";
+        $context .= "- sfwd-quiz: Quizzes\n\n";
+        $context .= "Progress tracking in {$prefix}learndash_user_activity:\n";
+        $context .= "- activity_type: 'course', 'lesson', 'topic', 'quiz'\n";
+        $context .= "- activity_status: 0 (not started), 1 (in progress), 2 (completed)\n";
+        $context .= "- activity_started, activity_completed: timestamps\n\n";
+        $context .= "COMMON CALCULATIONS:\n";
+        $context .= "- Completion rate: COUNT(activity_status=2) / COUNT(*) WHERE activity_type='course'\n";
+        $context .= "- Average quiz score: From {$prefix}learndash_pro_quiz_statistic";
 
-Progress tracking in {$prefix}learndash_user_activity:
-- activity_type: 'course', 'lesson', 'topic', 'quiz'
-- activity_status: 0 (not started), 1 (in progress), 2 (completed)
-- activity_started, activity_completed: timestamps
-
-COMMON CALCULATIONS:
-- Completion rate: COUNT(activity_status=2) / COUNT(*) WHERE activity_type='course'
-- Average quiz score: From {$prefix}learndash_pro_quiz_statistic
-CONTEXT;
+        return $context;
     }
 
     /**
@@ -194,21 +189,18 @@ CONTEXT;
         global $wpdb;
         $prefix = $wpdb->prefix;
 
-        return <<<CONTEXT
-MEMBERPRESS CONTEXT:
-Membership products are in posts where post_type='memberpressproduct'
+        $context = "MEMBERPRESS CONTEXT:\n";
+        $context .= "Membership products are in posts where post_type='memberpressproduct'\n\n";
+        $context .= "KEY TABLES:\n";
+        $context .= "- {$prefix}mepr_transactions: Payment records (id, user_id, product_id, amount, status, created_at)\n";
+        $context .= "- {$prefix}mepr_subscriptions: Recurring subscriptions (id, user_id, product_id, status, created_at)\n\n";
+        $context .= "TRANSACTION STATUSES: pending, complete, refunded, failed\n";
+        $context .= "SUBSCRIPTION STATUSES: active, suspended, cancelled, expired\n\n";
+        $context .= "COMMON CALCULATIONS:\n";
+        $context .= "- MRR: SUM(amount) from active subscriptions / billing periods\n";
+        $context .= "- Churn rate: Cancelled in period / Active at start of period";
 
-KEY TABLES:
-- {$prefix}mepr_transactions: Payment records (id, user_id, product_id, amount, status, created_at)
-- {$prefix}mepr_subscriptions: Recurring subscriptions (id, user_id, product_id, status, created_at)
-
-TRANSACTION STATUSES: pending, complete, refunded, failed
-SUBSCRIPTION STATUSES: active, suspended, cancelled, expired
-
-COMMON CALCULATIONS:
-- MRR: SUM(amount) from active subscriptions / billing periods
-- Churn rate: Cancelled in period / Active at start of period
-CONTEXT;
+        return $context;
     }
 
     /**
@@ -227,34 +219,31 @@ CONTEXT;
      * @return string
      */
     private function get_output_format(): string {
-        return <<<FORMAT
-RULES:
-1. Generate ONLY SELECT queries (read-only)
-2. NEVER use DELETE, UPDATE, INSERT, DROP, ALTER, TRUNCATE
-3. Always add LIMIT clause (max 1000 rows unless aggregating)
-4. Use proper table prefixes as shown in schema
-5. Handle NULL values appropriately with COALESCE or IFNULL
-6. Use readable column aliases for clarity
-7. For date comparisons, use the database's current timezone
-8. For aggregations, use appropriate GROUP BY clauses
+        $format = "RULES:\n";
+        $format .= "1. Generate ONLY SELECT queries (read-only)\n";
+        $format .= "2. NEVER use DELETE, UPDATE, INSERT, DROP, ALTER, TRUNCATE\n";
+        $format .= "3. Always add LIMIT clause (max 1000 rows unless aggregating)\n";
+        $format .= "4. Use proper table prefixes as shown in schema\n";
+        $format .= "5. Handle NULL values appropriately with COALESCE or IFNULL\n";
+        $format .= "6. Use readable column aliases for clarity\n";
+        $format .= "7. For date comparisons, use the database's current timezone\n";
+        $format .= "8. For aggregations, use appropriate GROUP BY clauses\n\n";
+        $format .= "OUTPUT FORMAT:\n";
+        $format .= "Return ONLY a valid JSON object with these exact fields:\n";
+        $format .= "{\n";
+        $format .= '    "sql": "YOUR SQL QUERY HERE",' . "\n";
+        $format .= '    "explanation": "Brief explanation of what this query does",' . "\n";
+        $format .= '    "columns": ["list", "of", "result", "columns"],' . "\n";
+        $format .= '    "chartType": "table|bar|line|pie|none"' . "\n";
+        $format .= "}\n\n";
+        $format .= "Choose chartType based on the data:\n";
+        $format .= '- "table" for detailed records or lists' . "\n";
+        $format .= '- "bar" for comparing categories' . "\n";
+        $format .= '- "line" for time series data' . "\n";
+        $format .= '- "pie" for showing proportions' . "\n";
+        $format .= '- "none" for single values' . "\n\n";
+        $format .= "Do not include any text outside the JSON object.";
 
-OUTPUT FORMAT:
-Return ONLY a valid JSON object with these exact fields:
-{
-    "sql": "YOUR SQL QUERY HERE",
-    "explanation": "Brief explanation of what this query does",
-    "columns": ["list", "of", "result", "columns"],
-    "chartType": "table|bar|line|pie|none"
-}
-
-Choose chartType based on the data:
-- "table" for detailed records or lists
-- "bar" for comparing categories
-- "line" for time series data
-- "pie" for showing proportions
-- "none" for single values
-
-Do not include any text outside the JSON object.
-FORMAT;
+        return $format;
     }
 }

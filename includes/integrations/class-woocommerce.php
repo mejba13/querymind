@@ -81,34 +81,31 @@ class WooCommerce extends IntegrationBase {
             ? "Orders are stored in {$prefix}wc_orders table (HPOS enabled)"
             : "Orders are stored in {$prefix}posts table where post_type='shop_order'";
 
-        return <<<CONTEXT
-WOOCOMMERCE INTEGRATION:
-{$hpos_note}
+        $context = "WOOCOMMERCE INTEGRATION:\n";
+        $context .= $hpos_note . "\n\n";
+        $context .= "KEY TABLES:\n";
+        $context .= "- {$prefix}wc_orders: Order records (id, status, total_amount, customer_id, date_created_gmt)\n";
+        $context .= "- {$prefix}wc_order_stats: Order statistics (order_id, total_sales, tax_total, shipping_total, net_total)\n";
+        $context .= "- {$prefix}wc_customer_lookup: Customer data (customer_id, user_id, email, first_name, last_name, city, country)\n";
+        $context .= "- {$prefix}woocommerce_order_items: Line items (order_item_id, order_id, order_item_name, order_item_type)\n";
+        $context .= "- {$prefix}woocommerce_order_itemmeta: Item meta (_qty, _line_total, _product_id, _variation_id)\n";
+        $context .= "- {$prefix}wc_product_meta_lookup: Product data for queries (_price, _regular_price, _sale_price, _stock)\n\n";
+        $context .= "ORDER STATUSES (always prefixed with 'wc-'):\n";
+        $context .= "- wc-pending: Pending payment\n";
+        $context .= "- wc-processing: Processing (paid, awaiting fulfillment)\n";
+        $context .= "- wc-on-hold: On hold\n";
+        $context .= "- wc-completed: Completed\n";
+        $context .= "- wc-cancelled: Cancelled\n";
+        $context .= "- wc-refunded: Refunded\n";
+        $context .= "- wc-failed: Failed payment\n\n";
+        $context .= "IMPORTANT NOTES:\n";
+        $context .= "- For revenue calculations, include status IN ('wc-completed', 'wc-processing')\n";
+        $context .= "- Order total is in 'total_amount' column in wc_orders or 'total_sales' in wc_order_stats\n";
+        $context .= "- Customer data may be in wc_customer_lookup or linked via customer_id to users table\n";
+        $context .= "- Product data is in posts table (post_type='product') with meta in postmeta\n";
+        $context .= "- Line item quantities and totals are in woocommerce_order_itemmeta with meta_keys: _qty, _line_total";
 
-KEY TABLES:
-- {$prefix}wc_orders: Order records (id, status, total_amount, customer_id, date_created_gmt)
-- {$prefix}wc_order_stats: Order statistics (order_id, total_sales, tax_total, shipping_total, net_total)
-- {$prefix}wc_customer_lookup: Customer data (customer_id, user_id, email, first_name, last_name, city, country)
-- {$prefix}woocommerce_order_items: Line items (order_item_id, order_id, order_item_name, order_item_type)
-- {$prefix}woocommerce_order_itemmeta: Item meta (_qty, _line_total, _product_id, _variation_id)
-- {$prefix}wc_product_meta_lookup: Product data for queries (_price, _regular_price, _sale_price, _stock)
-
-ORDER STATUSES (always prefixed with 'wc-'):
-- wc-pending: Pending payment
-- wc-processing: Processing (paid, awaiting fulfillment)
-- wc-on-hold: On hold
-- wc-completed: Completed
-- wc-cancelled: Cancelled
-- wc-refunded: Refunded
-- wc-failed: Failed payment
-
-IMPORTANT NOTES:
-- For revenue calculations, include status IN ('wc-completed', 'wc-processing')
-- Order total is in 'total_amount' column in wc_orders or 'total_sales' in wc_order_stats
-- Customer data may be in wc_customer_lookup or linked via customer_id to users table
-- Product data is in posts table (post_type='product') with meta in postmeta
-- Line item quantities and totals are in woocommerce_order_itemmeta with meta_keys: _qty, _line_total
-CONTEXT;
+        return $context;
     }
 
     /**

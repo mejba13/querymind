@@ -115,9 +115,6 @@ function querymind_init() {
         return;
     }
 
-    // Load text domain
-    load_plugin_textdomain( 'querymind', false, dirname( QUERYMIND_PLUGIN_BASENAME ) . '/languages' );
-
     // Initialize main plugin class
     return QueryMind\QueryMind::get_instance();
 }
